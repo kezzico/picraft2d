@@ -13,14 +13,16 @@ menu = nil
 global_state = {
   screenHeight = 0,
   
-  screenWidth = 0
+  screenWidth = 0,
+
+  menu_active = true
 }
 
 
 function love.load()
-  -- game = Game:new()
+  game = Game:new()
 
-  -- game:load()
+  game:load()
 
   menu = Menu:new()
 
@@ -35,22 +37,44 @@ function love.update(dt)
   
   global_state.screen_width = love.graphics.getWidth()
 
-  menu:update(dt)
-  -- game:update(dt)
+  if global_state.menu_active == true then
+    menu:update(dt)
+  else
+    game:update(dt)
+  end
 end
 
 function love.draw()
-  menu:draw()
+  if global_state.menu_active == true then
+    menu:draw()
+  else
+    game:draw()
+  end
 
-  -- game:draw()
 end
 
 function love.quit()
   print("Thanks for playing. Please play again soon!")
 end
 
+function love.keypressed(k, u)
+  print(k)
+
+  if global_state.menu_active == true then
+    menu:keypressed(k)
+  else
+
+  end  
+end
+
 function love.joystickadded(joystick)
   local jid = joystick:getID()
+  if global_state.menu_active == true then
+  
+  else
+
+  end  
+
 end
 
 function love.joystickremoved(joystick)

@@ -15,15 +15,15 @@ function Button(text, defaults, func)
 		text_x = defaults.text_x or 0,
 		text_y = defaults.text_y or 0,
 		font = defaults.font or font,
-		highlight = defaults.highlight or false,
-		index = defaults or 0,
+		index = defaults.index or 0,
+		highlight_index = -1,
 
 		draw = function(self, config)
 			self.button_x = config.button_x
 			self.button_y = config.button_y
 
-			if config.highlight then
-				self.highlight = config.highlight
+			if config.highlight_index then
+				self.highlight_index = config.highlight_index
 			end
 
 			if config.text_x then
@@ -35,7 +35,7 @@ function Button(text, defaults, func)
 			end
 
 -- print("hi "..self.button_x.." "..self.button_y.." "..self.width.." "..self.height)
-			if self.highlight then
+			if self.highlight_index == self.index then
 				love.graphics.setColor(255, 0, 0)
 			else
 				love.graphics.setColor(255, 255, 255)
@@ -43,7 +43,7 @@ function Button(text, defaults, func)
 			
 			love.graphics.rectangle("fill", self.button_x, self.button_y, self.width, self.height)
 
-			if self.highlight then
+			if self.highlight_index == self.index then
 				love.graphics.setColor(255, 255, 255)
 			else
 				love.graphics.setColor(255, 0, 0)

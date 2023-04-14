@@ -4,7 +4,7 @@ require 'menu_style'
 Menu = class:new()
 
 menu_state = {
-  highlight_button_index = 0
+  highlight_button_index = 1
 }
 
 buttons = {
@@ -22,6 +22,17 @@ function Menu:load()
   -- game:load()
 end
 
+function Menu:keypressed(key)
+  if key == "up" then
+    menu_state.highlight_button_index = menu_state.highlight_button_index - 1
+  elseif key == "down" then
+    menu_state.highlight_button_index = menu_state.highlight_button_index + 1
+  end
+
+  if key == "return" then
+    global_state.menu_active = false
+  end
+end
 
 function Menu:update(dt)
 end
@@ -31,13 +42,13 @@ function Menu:draw()
   buttons.play_button:draw({ 
     button_x = mid_x - buttons.play_button.width / 2.0, 
     button_y = 100, 
-    highlight = buttons.play_button.index == menu_state.highlight_button_index 
+    highlight_index = menu_state.highlight_button_index
   })
 
   buttons.quit_button:draw({
     button_x = mid_x - buttons.quit_button.width / 2.0, 
     button_y = 200,
-    highlight = buttons.play_button.index == menu_state.highlight_button_index
+    highlight_index = menu_state.highlight_button_index
   })
 end
 
