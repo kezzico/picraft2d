@@ -1,28 +1,48 @@
+local love = require 'love'
+
 require 'class'
 require 'game'
+require 'menu'
 
 love.filesystem.setIdentity("picraft")
 
 game = nil
 
+menu = nil
+
+global_state = {
+  screenHeight = 0,
+  
+  screenWidth = 0
+}
+
+
 function love.load()
-  game = Game:new()
+  -- game = Game:new()
 
-  game:load()
+  -- game:load()
+
+  menu = Menu:new()
+
+  menu:load()
 end
-
 
 
 function love.update(dt)
   if dt > 0.1 then dt = 0.1 end
 
-  game:update(dt)
+  global_state.screen_height = love.graphics.getHeight()
+  
+  global_state.screen_width = love.graphics.getWidth()
+
+  menu:update(dt)
+  -- game:update(dt)
 end
 
-
-
 function love.draw()
-  game:draw()
+  menu:draw()
+
+  -- game:draw()
 end
 
 function love.quit()
@@ -31,9 +51,6 @@ end
 
 function love.joystickadded(joystick)
   local jid = joystick:getID()
-
-  -- local controller = Controller:new(joystick)
-
 end
 
 function love.joystickremoved(joystick)
