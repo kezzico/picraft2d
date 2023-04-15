@@ -1,13 +1,13 @@
 local love = require 'love'
-
-require 'class'
-require 'game'
-require 'menu'
-
 love.filesystem.setIdentity("picraft")
 
-game = nil
+require 'class'
+require 'table_to_string'
+require 'game'
+require 'menu'
+require 'style'
 
+game = nil
 menu = nil
 
 global_state = {
@@ -15,7 +15,9 @@ global_state = {
   
   screenWidth = 0,
 
-  menu_active = true
+  menu_active = true,
+
+  controllers = { }
 }
 
 
@@ -27,6 +29,7 @@ function love.load()
   menu = Menu:new()
 
   menu:load()
+  menu:activate()
 end
 
 
@@ -45,10 +48,11 @@ function love.update(dt)
 end
 
 function love.draw()
+    game:draw()
+
   if global_state.menu_active == true then
     menu:draw()
   else
-    game:draw()
   end
 
 end
@@ -68,21 +72,22 @@ function love.keypressed(k, u)
 end
 
 function love.joystickadded(joystick)
+  print(table_to_string(love.joystick.getJoysticks()[1].getName()))
   local jid = joystick:getID()
   if global_state.menu_active == true then
   
   else
 
   end  
-
 end
 
 function love.joystickremoved(joystick)
+  print(table_to_string(love.joystick.getJoysticks()))
 
 end
 
 function love.gamepadpressed(joystick, button)
-
+  print("poo2"..table_to_string(joystick).." "..button)
 end
 
 function love.gamepadreleased(joystick, button)
