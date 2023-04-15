@@ -15,10 +15,14 @@ function Menu:load()
   buttons.play_button = Button("PLAY", { width = 200, height = 64, text_x = 55, text_y = 11, index = 1 })
   buttons.quit_button = Button("QUIT", { width = 200, height = 64, text_x = 55, text_y = 11, index = 2 })
 
-  background = Background(style.menu.background_color)
-  -- game = Game:new()
+  menu_music = love.audio.newSource("music/DR0000_0401.mp3", "stream")
+  menu_music:setLooping(true)
 
-  -- game:load()
+  background = Background(style.menu.background_color)
+end
+
+function Menu:activate()
+  love.audio.play(menu_music)  
 end
 
 function Menu:keypressed(key)
