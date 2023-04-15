@@ -1,5 +1,5 @@
 require 'button'
-require 'menu_style'
+require 'background'
 
 Menu = class:new()
 
@@ -7,16 +7,15 @@ menu_state = {
   highlight_button_index = 1
 }
 
-buttons = {
+buttons = { }
 
-}
-
-
+background = nil
 
 function Menu:load()
   buttons.play_button = Button("PLAY", { width = 200, height = 64, text_x = 55, text_y = 11, index = 1 })
   buttons.quit_button = Button("QUIT", { width = 200, height = 64, text_x = 55, text_y = 11, index = 2 })
 
+  background = Background(style.menu.background_color)
   -- game = Game:new()
 
   -- game:load()
@@ -39,6 +38,9 @@ end
 
 function Menu:draw()
   local mid_x = global_state.screen_width / 2.0
+
+  background:draw()
+
   buttons.play_button:draw({ 
     button_x = mid_x - buttons.play_button.width / 2.0, 
     button_y = 100, 
@@ -50,5 +52,6 @@ function Menu:draw()
     button_y = 200,
     highlight_index = menu_state.highlight_button_index
   })
+
 end
 

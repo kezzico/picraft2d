@@ -1,5 +1,4 @@
 local love = require 'love'
-require 'menu_style'
 
 
 function Button(text, defaults)
@@ -48,7 +47,7 @@ function Button(text, defaults)
 				love.graphics.setColor(255, 0, 0)
 			end
 
-			love.graphics.setFont(font)
+			love.graphics.setFont(style.menu.font)
 			love.graphics.print(self.text, self.button_x + self.text_x, self.button_y + self.text_y)
 
 			love.graphics.setColor(0, 0, 0)
