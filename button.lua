@@ -2,7 +2,7 @@ local love = require 'love'
 require 'menu_style'
 
 
-function Button(text, defaults, func)
+function Button(text, defaults)
 	defaults = defaults or { }
 
 	return {
@@ -34,7 +34,6 @@ function Button(text, defaults, func)
 				self.text_y = config.text_y
 			end
 
--- print("hi "..self.button_x.." "..self.button_y.." "..self.width.." "..self.height)
 			if self.highlight_index == self.index then
 				love.graphics.setColor(255, 0, 0)
 			else
