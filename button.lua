@@ -1,54 +1,43 @@
 local love = require 'love'
 
 
-function Button(text, defaults)
+function Button(text, style, defaults)
 	defaults = defaults or { }
 
+	local text_width = style.font:getWidth(text)
+	local text_height = style.font:getHeight(text)
+
 	return {
-		width = defaults.width or 100,
-		height = defaults.height or 100,
-		func = func or function() print("no func") end,
-		text = text or "empty",
-		button_x = 0,
-		button_y = 0,
-		text_x = defaults.text_x or 0,
-		text_y = defaults.text_y or 0,
-		font = defaults.font or font,
+		width = style.width or 100,
+		height = style.height or 100,
 		index = defaults.index or 0,
 		highlight_index = -1,
 
 		draw = function(self, config)
-			self.button_x = config.button_x
-			self.button_y = config.button_y
+			local text_x = (self.width - text_width) / 2.0
+			local text_y = (self.height - text_height) / 2.0
 
 			if config.highlight_index then
 				self.highlight_index = config.highlight_index
 			end
 
-			if config.text_x then
-				self.text_x = config.text_x
-			end
-
-			if config.text_y then
-				self.text_y = config.text_y
-			end
-
 			if self.highlight_index == self.index then
-				love.graphics.setColor(255, 0, 0)
+				love.graphics.setColor(style.background_color_highlight)
 			else
-				love.graphics.setColor(255, 255, 255)
+				love.graphics.setColor(style.background_color)
 			end
 			
-			love.graphics.rectangle("fill", self.button_x, self.button_y, self.width, self.height)
+			love.graphics.rectangle("fill", config.button_x, config.button_y, self.width, self.height)
 
 			if self.highlight_index == self.index then
-				love.graphics.setColor(255, 255, 255)
+				love.graphics.setColor(style.text_color_highlight)
 			else
-				love.graphics.setColor(255, 0, 0)
+				love.graphics.setColor(style.text_color)
 			end
 
-			love.graphics.setFont(style.menu.font)
-			love.graphics.print(self.text, self.button_x + self.text_x, self.button_y + self.text_y)
+			love.graphics.setFont(style.font)
+			love.graphics.print(text, config.button_x + text_x, config.button_y + text_y)
+
 
 			love.graphics.setColor(0, 0, 0)
 		end
