@@ -5,6 +5,7 @@ require 'class'
 require 'table_to_string'
 require 'game'
 require 'menu'
+require 'controller'
 require 'style'
 
 game = nil
@@ -17,7 +18,7 @@ global_state = {
 
   menu_active = true,
 
-  controllers = { }
+  controller_player1 = Controller()
 }
 
 
@@ -48,11 +49,12 @@ function love.update(dt)
 end
 
 function love.draw()
-    game:draw()
+  game:draw()
 
   if global_state.menu_active == true then
     menu:draw()
   else
+    -- hud:draw
   end
 
 end
@@ -61,24 +63,36 @@ function love.quit()
   print("Thanks for playing. Please play again soon!")
 end
 
-function love.keypressed(k, u)
-  print(k)
 
-  if global_state.menu_active == true then
-    menu:keypressed(k)
-  else
+function love.keypressed(key, u)
+  local controller = global_state.controller_player1
+  if key == "up" then
+    controller.delegate:press_up()
+  elseif key == "down" then
+    controller.delegate:press_down()
+  end
 
-  end  
+  if key == "return" then
+    controller.delegate.press_x()
+  end
+
+  if key == "escape" then
+    if global_state.menu_active then
+      game:activate()
+      menu:suspend()
+      global_state.menu_active = false
+    else
+      menu:activate()
+      game:suspend()
+      global_state.menu_active = true
+    end
+  end
+
 end
 
 function love.joystickadded(joystick)
-  print(table_to_string(love.joystick.getJoysticks()[1].getName()))
   local jid = joystick:getID()
-  if global_state.menu_active == true then
-  
-  else
-
-  end  
+  print("jid:"..jid)
 end
 
 function love.joystickremoved(joystick)
@@ -87,7 +101,30 @@ function love.joystickremoved(joystick)
 end
 
 function love.gamepadpressed(joystick, button)
-  print("poo2"..table_to_string(joystick).." "..button)
+  local controller = global_state.controller_player1
+  print(button)  
+  if button == "dpup" then
+    global_state.controller_player1.delegate.press_up()
+  elseif button == "dpdown" then
+    global_state.controller_player1.delegate.press_down()
+  end
+
+  if button == "a" then
+    global_state.controller_player1.delegate.press_x()
+  end
+
+  if button == "start" then
+    if global_state.menu_active then
+      game:activate()
+      menu:suspend()
+      global_state.menu_active = false
+    else
+      menu:activate()
+      game:suspend()
+      global_state.menu_active = true
+    end
+  end
+
 end
 
 function love.gamepadreleased(joystick, button)

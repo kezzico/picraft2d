@@ -56,6 +56,13 @@ function Game:load()
   player.inventory:give(WOOD_SHOVEL) -- Just temporary, for testing
 end
 
+function Game:activate()
+
+end
+
+function Game:suspend()
+
+end
 
 
 function Game:update(dt)
