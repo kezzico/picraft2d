@@ -6,7 +6,9 @@ Menu = class:new()
 menu_state = {
   select_index = 1,
 
-  layer = "main"
+  layer = "main",
+
+  active = false
 }
 
 menu_components = {
@@ -30,6 +32,10 @@ function Menu:load()
 end
 
 function Menu:activate()
+  menu_state.active = true
+  menu_state.layer = "main"
+  menu_state.select_index = 1
+
   love.audio.play(menu_music)
 
   local delegate = ControllerDelegate()
@@ -47,17 +53,18 @@ function Menu:activate()
       menu_state.layer = "select-world"
       menu_state.select_index = 3
     elseif menu_state.select_index == 3 then
-      menu_state.layer = "main"
-      menu_state.select_index = 1
-      global_state.menu_active = false
+      menu:suspend()
+      game:load()
+      game:activate()
     end
-
   end
 
-  global_state.controller_player1.delegate = delegate
+  controllers.player1.delegate = delegate
 end
 
 function Menu:suspend()
+  menu_state.active = false
+
   love.audio.pause(menu_music)
 end
 
@@ -65,6 +72,10 @@ function Menu:update(dt)
 end
 
 function Menu:draw()
+  if menu_state.active == false then
+    return
+  end
+
   local mid_x = global_state.screen_width / 2.0
 
   background:draw()

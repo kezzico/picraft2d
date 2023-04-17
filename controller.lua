@@ -8,9 +8,12 @@ end
 
 function ControllerDelegate()
 	return {
-		press_up   = function() end,
-		press_down = function() end,
-		press_x    = function() end,
+		press_up    = function() end,
+		press_down  = function() end,
+		press_x     = function() end,
+		press_start = function() end,
+		press_left  = function() end,
+		press_right = function() end
 	}
 end
 

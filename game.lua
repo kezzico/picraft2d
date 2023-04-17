@@ -68,16 +68,24 @@ end
 
 
 function Game:activate()
-  print("activate")
   generator_thread = love.thread.newThread("generator.lua")
   generator_thread:start()
+
+  local delegate = ControllerDelegate()
+
+  delegate.press_start = function()
+    game:suspend()
+
+    menu:activate()
+  end
+
+  controllers.player1.delegate = delegate
 end
 
 function Game:suspend()
   local command_channel = love.thread.getChannel('generator_command')
   command_channel:clear()
   command_channel:push("quit")
-  generator_thread:wait()
 end
 
 
