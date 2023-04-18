@@ -2,6 +2,14 @@ love.filesystem.load("TSerial.lua")()
 
 Terrain = {}
 
+function Flat_Terrain()
+  return {
+    generator = nil,
+
+
+  }
+end
+
 function Terrain:new(seed)
   local o = {}
   setmetatable(o, self)
@@ -20,12 +28,19 @@ function Terrain:new(seed)
 end
 
 function Terrain:addChunk(chunk, r, c)
+  -- expand rc bounds if needed
   if r < self.rMin then self.rMin = r end
   if r > self.rMax then self.rMax = r end
   if c < self.cMin then self.cMin = c end
   if c > self.cMax then self.cMax = c end
+
+  -- new row
   if self.chunk[r] == nil then self.chunk[r] = {} end
+
+  -- keep reference
   self.chunk[r][c] = chunk
+
+  -- circular references
   self.chunk[r][c].terrain = self
   self.chunk[r][c].r = r
   self.chunk[r][c].c = c
@@ -73,31 +88,6 @@ function Terrain:getSeed()
   return self.seed
 end
 
-function Terrain:generateInitial()
-  for r = self.rMin, self.rMax do
-    for c = self.cMin, self.cMax do
-      chunk = Chunk:new()
-      chunk:generate(self:getSeed(), r, c)
-      terrain:addChunk(chunk, r, c)
-      for r = 0, 1 do
-        for c = -1, 1 do
-          if self:hasChunk(chunk.r + r, chunk.c + c) then
-            self:getChunk(chunk.r + r, chunk.c + c):generateTrees()
-         end
-        end
-      end
-      for r = -1, 1 do
-        for c = -1, 1 do
-          if self:hasChunk(chunk.r + r, chunk.c + c) then
-            self:getChunk(chunk.r + r, chunk.c + c):render()
-          end
-        end
-      end
-    end
-  end
-
-end
-
 function Terrain:calculateSunLight()
   for c = self.cMin, self.cMax do
     local topFound = false
@@ -131,8 +121,6 @@ function Terrain:calculateSunLight()
       end
     end
   end
-
-
 end
 
 function Terrain:generate(r, c)
@@ -147,9 +135,12 @@ function Terrain:checkGenerator()
   local chunk_channel = love.thread.getChannel('generator_chunk')
   local command_channel = love.thread.getChannel('generator_command')
 
-  local chunk = chunk_channel:pop()
-  if chunk ~= nil then
-    chunkNew = TSerial.unpack(chunk)
+  local chunk_str = chunk_channel:pop()
+  while chunk_str ~= nil do
+    print('trying to unpack chunk')
+
+    chunkNew = TSerial.unpack(chunk_str)
+
     chunk = self:getChunk(chunkNew.r, chunkNew.c)
     chunk.block = chunkNew.block
     chunk.generated = true
@@ -169,6 +160,8 @@ function Terrain:checkGenerator()
         end
       end
     end
+
+    chunk_str = chunk_channel:pop()
   end
 
   local chunkRC = table.remove(self.generationQueue, 1)
@@ -206,21 +199,5 @@ function Terrain:draw(view)
   end
   for i = 1, #self.entities do
     self.entities[i]:draw(view)
-  end
-end
-
-function Terrain:drawPerlin(view)
-  local minR = math.max(terrain.rMin, math.floor((view.y - view.zoom * (love.graphics.getHeight() / 2)) / 32))
-  local maxR = math.min(terrain.rMax, math.floor((view.y + view.zoom * (love.graphics.getHeight() / 2)) / 32))
-  local minC = math.max(terrain.cMin, math.floor((view.x - view.zoom * (love.graphics.getWidth()  / 2)) / 32))
-  local maxC = math.min(terrain.cMax, math.floor((view.x + view.zoom * (love.graphics.getWidth()  / 2)) / 32))
-  love.graphics.setColor(255, 255, 255, 255)
-  for r = minR, maxR do
-    for c = minC, maxC do
-      if terrain:hasChunk(r, c) then
-        if terrain:getChunk(r, c).framebufferPerlin == nil then terrain:getChunk(r, c):renderPerlin() end
-        love.graphics.draw(terrain:getChunk(r, c).framebufferPerlin, (32*c-view.x)*view.zoom + love.graphics.getWidth()/2, (32*r-view.y)*view.zoom+love.graphics.getHeight()/2, 0, view.zoom/16, view.zoom/16)
-      end
-    end
   end
 end
