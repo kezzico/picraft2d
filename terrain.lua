@@ -127,7 +127,7 @@ function Terrain:generate(r, c)
   if self:hasChunk(r, c) then return
   else
     table.insert(self.generationQueue, {r = r, c = c})
-    terrain:addChunk(Chunk:new(), r, c)
+    self:addChunk(Chunk:new(), r, c)
   end
 end
 
@@ -137,10 +137,7 @@ function Terrain:checkGenerator()
 
   local chunk_str = chunk_channel:pop()
   while chunk_str ~= nil do
-    print('trying to unpack chunk')
-
     chunkNew = TSerial.unpack(chunk_str)
-
     chunk = self:getChunk(chunkNew.r, chunkNew.c)
     chunk.block = chunkNew.block
     chunk.generated = true
@@ -185,15 +182,15 @@ function Terrain:draw(view)
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(sky, -1, skyPos, 0, (love.graphics.getWidth()+2)/sky:getWidth(), view.zoom/8, 0, 256)
 
-  local minR = math.max(terrain.rMin, math.floor((view.y - view.zoom * (love.graphics.getHeight() / 2)) / 32))
-  local maxR = math.min(terrain.rMax, math.floor((view.y + view.zoom * (love.graphics.getHeight() / 2)) / 32))
-  local minC = math.max(terrain.cMin, math.floor((view.x - view.zoom * (love.graphics.getWidth()  / 2)) / 32))
-  local maxC = math.min(terrain.cMax, math.floor((view.x + view.zoom * (love.graphics.getWidth()  / 2)) / 32))
+  local minR = math.max(self.rMin, math.floor((view.y - view.zoom * (love.graphics.getHeight() / 2)) / 32))
+  local maxR = math.min(self.rMax, math.floor((view.y + view.zoom * (love.graphics.getHeight() / 2)) / 32))
+  local minC = math.max(self.cMin, math.floor((view.x - view.zoom * (love.graphics.getWidth()  / 2)) / 32))
+  local maxC = math.min(self.cMax, math.floor((view.x + view.zoom * (love.graphics.getWidth()  / 2)) / 32))
   love.graphics.setColor(255, 255, 255, 255)
   for r = minR, maxR do
     for c = minC, maxC do
-      if terrain:hasChunk(r, c) then
-        terrain:getChunk(r, c):draw(view)
+      if self:hasChunk(r, c) then
+        self:getChunk(r, c):draw(view)
       end
     end
   end

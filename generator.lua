@@ -1,48 +1,50 @@
 require("love.timer")
 require("love.filesystem")
+require "uuid"
 love.filesystem.load("TSerial.lua")()
 love.filesystem.load("common.lua")()
 love.filesystem.load("chunk.lua")()
 
-function Generator()
+function Generator(generator)
   return {
     thread = nil,
-
-    run = true,
 
     chunk_channel = love.thread.getChannel('generator_chunk'),
 
     command_channel = love.thread.getChannel('generator_command'),
 
     start = function(self) 
+      self.command_channel:push("quit")
+
+      self.chunk_channel:clear()
+
       self.command_channel:clear()
       
       if self.thread == nil then
-        self.thread = love.thread.newThread("generator_thread.lua")
-        print("....")
+        self.thread = love.thread.newThread(generator)
         
-        self.thread:start()
+        self.thread:start(chunk_channel, command_channel)
       end
     end,
 
-    thread_loop = function(self)
+    stop = function(self)
+      self.command_channel:push("quit")      
+    end,
+
+    thread_loop = function(self, chunk_generator)
       print("terrain generator started")
 
-      while self.run == true do 
-        commandMsg = self.command_channel:demand()
-        if commandMsg == "quit" then self.run = false
-        else
-          local command = TSerial.unpack(commandMsg)
+      local msg = self.command_channel:demand()
 
-          chunk = Chunk:new()
-          chunk:generate(command.seed, command.r, command.c)
+      while msg ~= "quit" do
+        local params = TSerial.unpack(msg)
 
-          self.chunk_channel:push(TSerial.pack(chunk))
-          print("generated chunk at " .. command.r .. ", " .. command.c)
-        end
+        local chunk = chunk_generator(params)
+
+        self.chunk_channel:push(TSerial.pack(chunk))
+
+        msg = self.command_channel:demand()
       end
     end
   }
 end
-
-terrain_generator = Generator()

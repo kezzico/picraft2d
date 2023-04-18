@@ -7,6 +7,8 @@ require 'menu'
 require 'controller'
 require 'style'
 
+love.filesystem.load("loadgraphics.lua")()
+
 game = nil
 menu = nil
 
@@ -48,6 +50,8 @@ function love.draw()
 end
 
 function love.quit()
+  game_state.generator:stop()
+
   print("Thanks for playing. Please play again soon!")
 end
 
