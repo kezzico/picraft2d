@@ -24,7 +24,6 @@ controllers = {
 function love.load()
   game = Game:new()
   game:load()
-  game:activate()
 
   menu = Menu:new()
   menu:load()
@@ -54,18 +53,25 @@ end
 
 
 function love.keypressed(key, u)
+  local controller = controllers.player1
   if key == "up" then
-    controllers.player1.delegate:press_up()
+    controller.delegate:press_up()
   elseif key == "down" then
-    controllers.player1.delegate:press_down()
+    controller.delegate:press_down()
+  end
+
+  if key == "left" then
+    controller.delegate.press_left()
+  elseif key == "right" then
+    controller.delegate.press_right()
   end
 
   if key == "return" then
-    controllers.player1.delegate.press_x()
+    controller.delegate.press_x()
   end
 
   if key == "escape" then
-    controllers.player1.delegate.press_start()
+    controller.delegate.press_start()
   end
 end
 
