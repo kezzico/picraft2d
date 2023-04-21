@@ -77,6 +77,13 @@ function love.keypressed(key, u)
   if key == "escape" then
     controller.delegate.press_start()
   end
+
+  if key == "c" then
+    controller.delegate.press_function_1()
+  end
+  if key == "v" then
+    controller.delegate.press_function_2()
+  end
 end
 
 function love.joystickadded(joystick)
