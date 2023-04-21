@@ -12,6 +12,7 @@ function Terrain(seed, generator)
     },
 
     generate = function(self, view)
+      -- insert chunks created by generator thread
       local chunk_str = generator.chunk_channel:pop()
       while chunk_str ~= nil do
         -- print("unpack chunk")
@@ -22,11 +23,6 @@ function Terrain(seed, generator)
         self.state.chunks[chunkrc] = chunk
 
         chunk_str = generator.chunk_channel:pop()
-      end
-
-      -- TODO: look for chunks to remove from frame buffer
-      for chunkrc in pairs(self.state.chunks) do
-        -- print("keys "..chunkrc)
       end
 
       local chunk_native_pixel_width = style.terrain.blocks_pixel_size * style.terrain.blocks_per_chunk
@@ -50,6 +46,56 @@ function Terrain(seed, generator)
         cMax = math.floor((view.x + half_screen_width) / chunk_width)
       }
 
+      -- release chunks off screen
+      for chunkrc in pairs(self.state.chunks) do
+        local chunk = self.state.chunks[chunkrc]
+
+        if chunk.r + 2 < rect.rMin then
+          local buffer = self.state.chunk_buffers[chunkrc]
+          if buffer ~= nil then
+            buffer:release()
+          end
+
+          self.state.chunks[chunkrc] = nil
+          self.state.ghost_chunks[chunkrc] = nil
+          self.state.chunk_buffers[chunkrc] = nil
+        end
+
+        if chunk.r - 2 > rect.rMax then
+          local buffer = self.state.chunk_buffers[chunkrc]
+          if buffer ~= nil then
+            buffer:release()
+          end
+
+          self.state.chunks[chunkrc] = nil
+          self.state.ghost_chunks[chunkrc] = nil
+          self.state.chunk_buffers[chunkrc] = nil
+        end
+
+        if chunk.c + 2 < rect.cMin then
+          local buffer = self.state.chunk_buffers[chunkrc]
+          if buffer ~= nil then
+            buffer:release()
+          end
+
+          self.state.chunks[chunkrc] = nil
+          self.state.ghost_chunks[chunkrc] = nil
+          self.state.chunk_buffers[chunkrc] = nil
+        end
+
+        if chunk.c - 2 > rect.cMax then
+          local buffer = self.state.chunk_buffers[chunkrc]
+          if buffer ~= nil then
+            buffer:release()
+          end
+
+          self.state.chunks[chunkrc] = nil
+          self.state.ghost_chunks[chunkrc] = nil
+          self.state.chunk_buffers[chunkrc] = nil
+        end
+      end
+
+      -- generate chunks in empty space
       ForEachRC(rect, function(r,c)
           local chunkrc = r..","..c
 
@@ -177,7 +223,6 @@ function RenderChunk(chunk)
     local x = (c-1) * w
     local y = (r-1) * h
 
-    
     love.graphics.setColor(255,255,255,1.0)
     love.graphics.rectangle("fill", x,y,w,h)
     love.graphics.setColor(255,255,255,1.0)
