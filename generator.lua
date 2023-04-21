@@ -1,6 +1,6 @@
 require("love.timer")
 require("love.filesystem")
-require "uuid"
+
 love.filesystem.load("TSerial.lua")()
 love.filesystem.load("common.lua")()
 love.filesystem.load("chunk.lua")()
