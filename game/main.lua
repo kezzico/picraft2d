@@ -6,8 +6,7 @@ require 'game'
 require 'menu'
 require 'controller'
 require 'style'
-
-love.filesystem.load("loadgraphics.lua")()
+require 'cache'
 
 game = nil
 menu = nil
@@ -21,6 +20,8 @@ global_state = {
 controllers = {
   player1 = Controller()
 }
+
+cache = Cache()
 
 
 function love.load()
@@ -84,6 +85,11 @@ function love.keypressed(key, u)
   if key == "v" then
     controller.delegate.press_function_2()
   end
+  if tonumber(key) ~= nil then
+    print(key)
+    controller.delegate.press_number(tonumber(key))
+  end
+
 end
 
 function love.joystickadded(joystick)

@@ -17,7 +17,8 @@ style = {
 
       text_color = {255, 0, 0},
 
-      font = love.graphics.newFont("fonts/joystix.ttf", 25),
+      -- font = love.graphics.newFont("fonts/joystix.ttf", 25),
+      fontname = { "fonts/joystix.ttf", 25 },
     }
   },
 
@@ -29,7 +30,8 @@ style = {
 
       text_shadow_color = {0, 0, 0, 1.0},
 
-      font = love.graphics.newFont("fonts/joystix.ttf", 64),
+      -- font = love.graphics.newFont("fonts/joystix.ttf", 64),
+      fontname = { "fonts/joystix.ttf", 64 },
     },
 
     native_zoom_scale = 16,

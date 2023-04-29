@@ -1,11 +1,10 @@
-local love = require 'love'
-
 
 function Button(text, style, defaults)
 	defaults = defaults or { }
 
-	local text_width = style.font:getWidth(text)
-	local text_height = style.font:getHeight(text)
+	local font = cache.font(style.fontname)
+	local text_width = font:getWidth(text)
+	local text_height = font:getHeight(text)
 
 	return {
 		width = style.width or 100,
@@ -35,7 +34,8 @@ function Button(text, style, defaults)
 				love.graphics.setColor(style.text_color)
 			end
 
-			love.graphics.setFont(style.font)
+
+			love.graphics.setFont(font)
 			love.graphics.print(text, config.button_x + text_x, config.button_y + text_y)
 
 
