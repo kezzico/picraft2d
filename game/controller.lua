@@ -16,6 +16,7 @@ function ControllerDelegate()
 		press_right 	 = function() end,
 		press_function_1 = function() end,
 		press_function_2 = function() end,
+		press_number     = function() end,
 	}
 end
 

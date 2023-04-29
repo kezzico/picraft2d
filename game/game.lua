@@ -1,17 +1,6 @@
-love.filesystem.load("perlin.lua")()
-love.filesystem.load("chunk.lua")()
--- love.filesystem.load("terrain.lua")()
--- love.filesystem.load("grapplinghook.lua")()
--- love.filesystem.load("player.lua")()
--- love.filesystem.load("collision.lua")()
-love.filesystem.load("common.lua")()
--- love.filesystem.load("entity.lua")()
--- love.filesystem.load("gameplay.lua")()
--- love.filesystem.load("inventory.lua")()
-
 require 'generator'
 require 'terrain'
-anim8 = require 'anim8/anim8'
+-- anim8 = require 'anim8/anim8'
 
 -- showPerlin = false
 -- oldMouse = {x = 0, y = 0}
@@ -46,7 +35,7 @@ end
 function Game:load()
   local seed = os.time()
 
-  game_state.generator = Generator("generators/perlin.lua")
+  game_state.generator = Generator("generators/rolling-hills.lua")
 
   game_state.terrain = Terrain(seed, game_state.generator)
 
@@ -56,7 +45,7 @@ function Game:load()
 
   game_state.view.y = 0
 
-  game_state.view.zoom = style.terrain.native_zoom_scale / 4
+  game_state.view.zoom = style.terrain.native_zoom_scale
 end
 
 
@@ -101,6 +90,10 @@ function Game:activate()
     local toggle = not terrain.state.render_chunks
 
     terrain.state.render_chunks = toggle
+  end
+
+  delegate.press_number = function(n)
+    game_state.view.zoom = style.terrain.native_zoom_scale/10 * (10-n)
   end
 
   controllers.player1.delegate = delegate
