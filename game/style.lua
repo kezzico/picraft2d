@@ -36,7 +36,7 @@ style = {
 
     native_zoom_scale = 16,
 
-    blocks_pixel_size = 16,
+    blocks_pixel_size = 15,
 
     blocks_per_chunk = 32,
 
