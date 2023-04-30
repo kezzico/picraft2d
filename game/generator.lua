@@ -1,9 +1,4 @@
-require("love.timer")
-require("love.filesystem")
-
-love.filesystem.load("TSerial.lua")()
-love.filesystem.load("common.lua")()
-love.filesystem.load("chunk.lua")()
+require 'TSerial'
 
 function Generator(generator)
   return {
