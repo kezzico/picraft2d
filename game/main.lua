@@ -7,6 +7,7 @@ require 'menu'
 require 'controller'
 require 'style'
 require 'cache'
+require 'random'
 
 game = nil
 menu = nil

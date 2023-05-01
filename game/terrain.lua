@@ -1,34 +1,18 @@
 require 'TSerial'
+require 'blocks'
 
-function Terrain(seed, generator)
+function Terrain(generator)
   local chunkfont = cache.font(style.terrain.chunk.fontname)
 
-  return {
-    state = {
-      chunks = { },
-      ghost_chunks  = { },
-      chunk_buffers = { },
-      render_chunk_borders = false,
-      render_chunks = true,
-      rMin = 0, rMax = 0, cMin = 0, cMax = 0
-    },
-
-    generate = function(self, view)
-      -- insert chunks created by generator thread
-      local chunk_str = generator.chunk_channel:pop()
-      while chunk_str ~= nil do
-        -- print("unpack chunk"..chunk_str)
-        local chunk = TSerial.unpack(chunk_str)
-        -- print("chunk result"..table_to_string(chunk))
-        local chunkrc = chunk.r..","..chunk.c
-        -- print("chunkrc="..chunkrc)
-        self.state.chunks[chunkrc] = chunk
-        self.state.ghost_chunks[chunkrc] = nil
-
-        chunk_str = generator.chunk_channel:pop()
-
+  local function ForEachRC(rect, action)
+    for r = rect.rMin, rect.rMax do
+      for c = rect.cMin, rect.cMax do
+        action(r,c)
       end
+    end
+  end
 
+  local function viewToRect(view)
       local chunk_native_pixel_width = style.terrain.blocks_pixel_size * style.terrain.blocks_per_chunk
 
       local chunk_native_pixel_height = style.terrain.blocks_pixel_size * style.terrain.blocks_per_chunk
@@ -50,74 +34,102 @@ function Terrain(seed, generator)
         cMax = math.floor((view.x + half_screen_width) / chunk_width)
       }
 
+      return rect
+  end
+
+  local function RenderChunk(chunk)
+  -- print("rendering chunk "..chunk.r..","..chunk.c)
+
+    local rect = { 
+      rMin = 1, 
+      rMax = style.terrain.blocks_per_chunk,
+      cMin = 1, 
+      cMax = style.terrain.blocks_per_chunk
+    }
+
+    ForEachRC(rect, function(r,c) 
+      -- print("👀"..#chunk.block.." "..r..","..c)
+      local block = chunk.block[r][c]
+
+      if block == 0 then
+        return
+      end
+
+      local w = style.terrain.blocks_pixel_size
+      local h = style.terrain.blocks_pixel_size
+      local x = (c-1) * w
+      local y = (r-1) * h
+
+      local block_type = Blocks[block]
+
+      if block_type == nil then
+        return
+      end
+
+      local tname = block_type.texture
+      local texture = cache.image(tname)
+      local sx = w / texture:getWidth()
+      local sy = h / texture:getHeight()
+
+      love.graphics.setColor(1,1,1,1.0)
+      love.graphics.draw(texture,x,y,0,sx,sy)
+      -- love.graphics.setColor(1,1,1,0.5)
+      -- love.graphics.rectangle("fill", x,y,w,h)
+      love.graphics.setColor(255,255,255,1.0)
+    end)
+  end
+
+
+  return {
+    state = {
+      chunks = { },
+      -- ghost_chunks  = { },
+      chunk_buffers = { },
+
+      render_chunk_borders = false,
+      render_chunks = true,
+      rMin = 0, rMax = 0, cMin = 0, cMax = 0
+    },
+
+    clean = function(self, view)
+      local rect = viewToRect(view)
       -- release chunks off screen
       for chunkrc in pairs(self.state.chunks) do
         local chunk = self.state.chunks[chunkrc]
 
-        if chunk.r + 2 < rect.rMin then
+        if
+          chunk.r + 2 < rect.rMin or
+          chunk.r - 2 > rect.rMax or
+          chunk.c + 2 < rect.cMin or 
+          chunk.c - 2 > rect.cMax then
+
+          print("release chunk "..chunk.r..' '..chunk.c)
           local buffer = self.state.chunk_buffers[chunkrc]
+
           if buffer ~= nil then
             buffer:release()
           end
 
           self.state.chunks[chunkrc] = nil
-          self.state.ghost_chunks[chunkrc] = nil
           self.state.chunk_buffers[chunkrc] = nil
         end
 
-        if chunk.r - 2 > rect.rMax then
-          local buffer = self.state.chunk_buffers[chunkrc]
-          if buffer ~= nil then
-            buffer:release()
-          end
-
-          self.state.chunks[chunkrc] = nil
-          self.state.ghost_chunks[chunkrc] = nil
-          self.state.chunk_buffers[chunkrc] = nil
-        end
-
-        if chunk.c + 2 < rect.cMin then
-          local buffer = self.state.chunk_buffers[chunkrc]
-          if buffer ~= nil then
-            buffer:release()
-          end
-
-          self.state.chunks[chunkrc] = nil
-          self.state.ghost_chunks[chunkrc] = nil
-          self.state.chunk_buffers[chunkrc] = nil
-        end
-
-        if chunk.c - 2 > rect.cMax then
-          local buffer = self.state.chunk_buffers[chunkrc]
-          if buffer ~= nil then
-            buffer:release()
-          end
-
-          self.state.chunks[chunkrc] = nil
-          self.state.ghost_chunks[chunkrc] = nil
-          self.state.chunk_buffers[chunkrc] = nil
-        end
       end
+    end,
 
-      -- generate chunks in empty space
+    generate = function(self, view)
+      -- pull chunks created by generator thread
+      generator:pull(self.state.chunks)
+
+      local rect = viewToRect(view)
+      -- push chunks to be generated to thread
       ForEachRC(rect, function(r,c)
           local chunkrc = r..","..c
 
           local chunk = self.state.chunks[chunkrc]
 
-          local ghost_chunk = self.state.ghost_chunks[chunkrc]
-
-          if chunk == nil and ghost_chunk == nil then
-            if r < self.state.rMin then self.state.rMin = r end
-            if r > self.state.rMax then self.state.rMax = r end
-            if c < self.state.cMin then self.state.cMin = c end
-            if c > self.state.cMax then self.state.cMax = c end
-
-            local command = { seed = seed, r = r, c = c }
-
-            self.state.ghost_chunks[chunkrc] = { }
-
-            generator.command_channel:push(TSerial.pack(command))
+          if chunk == nil then
+            generator:push(r, c)
           end
       end)
     end,
@@ -162,7 +174,7 @@ function Terrain(seed, generator)
         local render_y = chunk_y-view.y+half_screen_height
 
         if framebuffer == nil then 
-          framebuffer = love.graphics.newCanvas(chunk_pixel_width, chunk_pixel_height)
+          framebuffer = love.graphics.newCanvas(chunk_native_pixel_width, chunk_native_pixel_height)
           self.state.chunk_buffers[chunkrc] = framebuffer
 
           love.graphics.setCanvas(framebuffer)
@@ -205,43 +217,3 @@ function Terrain(seed, generator)
 
 end
 
-function RenderChunk(chunk)
-  -- print("rendering chunk "..chunk.r..","..chunk.c)
-
-  local rect = { 
-    rMin = 1, 
-    rMax = style.terrain.blocks_per_chunk,
-    cMin = 1, 
-    cMax = style.terrain.blocks_per_chunk
-  }
-
-  ForEachRC(rect, function(r,c) 
-    -- print("👀"..#chunk.block.." "..r..","..c)
-    local block = chunk.block[r][c]
-
-    -- if block == AIR then
-    --   return
-    -- end
-
-    local w = style.terrain.blocks_pixel_size
-    local h = style.terrain.blocks_pixel_size
-    local x = (c-1) * w
-    local y = (r-1) * h
-
-    -- if (chunk.c % 2) == 1 and (chunk.r % 2) == 0 then love.graphics.setColor(block,0,0,1.0)
-    -- elseif (chunk.c % 2) == 0 and (chunk.r % 2) == 1 then love.graphics.setColor(block,0,0,1.0)
-    -- else love.graphics.setColor(0,block,0,1.0) end
-    love.graphics.setColor(block,0,0,1.0)
-    love.graphics.rectangle("fill", x,y,w,h)
-    love.graphics.setColor(255,255,255,1.0)
-  end)
-end
-
-function ForEachRC(rect, action)
-  for r = rect.rMin, rect.rMax do
-    for c = rect.cMin, rect.cMax do
-      action(r,c)
-    end
-  end
-
-end
