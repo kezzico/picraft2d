@@ -8,6 +8,9 @@ require 'controller'
 require 'style'
 require 'cache'
 require 'random'
+require 'generator'
+require 'terrain'
+require 'text'
 
 game = nil
 menu = nil
@@ -26,8 +29,9 @@ cache = Cache()
 
 
 function love.load()
-  game = Game:new()
-  game:load()
+  game = Game()
+
+  game:load(1234, "generators/rolling-hills.lua")
 
   menu = Menu:new()
   menu:load()
@@ -52,8 +56,7 @@ function love.draw()
 end
 
 function love.quit()
-  game_state.generator:stop()
-
+  game:suspend()
   print("Thanks for playing. Please play again soon!")
 end
 

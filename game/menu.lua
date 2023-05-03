@@ -66,7 +66,7 @@ function Menu:activate()
   end
 
   delegate.press_start = function()
-    if game_state.active then
+    if game.state.active then
       menu:suspend()
       game:activate()
     end
@@ -81,19 +81,19 @@ function Menu:suspend()
 end
 
 function Menu:update(dt)
-  if game_state.active == false then
-    game_state.view.x = game_state.view.x + menu_state.scroll_vector.x
-    game_state.view.y = game_state.view.y + menu_state.scroll_vector.y
+  if game.state.active == false then
+    game.state.view.x = game.state.view.x + menu_state.scroll_vector.x
+    game.state.view.y = game.state.view.y + menu_state.scroll_vector.y
 
-    if game_state.view.y < -64.0 then
+    if game.state.view.y < -64.0 then
       menu_state.scroll_vector.y = 1.0
-    elseif game_state.view.y > 64.0 then
+    elseif game.state.view.y > 64.0 then
       menu_state.scroll_vector.y = -1.0
     end
 
-    if game_state.view.x > 96.0 then
+    if game.state.view.x > 96.0 then
       menu_state.scroll_vector.x = -1.0
-    elseif game_state.view.x < 0.0 then
+    elseif game.state.view.x < 0.0 then
       menu_state.scroll_vector.x = 1.0
     end
 
