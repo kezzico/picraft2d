@@ -36,55 +36,91 @@ function Terrain(generator)
 
       return rect
   end
-
-  local function RenderChunk(chunk)
+  local function RenderChunk(blocks)
   -- print("rendering chunk "..chunk.r..","..chunk.c)
 
-    local rect = { 
-      rMin = 1, 
-      rMax = style.terrain.blocks_per_chunk,
-      cMin = 1, 
-      cMax = style.terrain.blocks_per_chunk
-    }
+    local w = style.terrain.blocks_pixel_size
 
-    ForEachRC(rect, function(r,c) 
-      -- print("👀"..#chunk.block.." "..r..","..c)
-      local block = chunk.block[r][c]
+    local h = style.terrain.blocks_pixel_size
 
-      if block == 0 then
-        return
+    for xy in pairs(blocks) do
+      local block = blocks[xy]
+
+      local x = block.x
+
+      local y = block.y
+
+      local t = block.type
+
+      if t ~= nil then
+        local texture = cache.image(t.texture)
+        local sx = w / texture:getWidth()
+        local sy = h / texture:getHeight()
+
+        love.graphics.setColor(1,1,1,1.0)
+        love.graphics.draw(texture,x,y,0,sx,sy)
+      else
+        print("unknown block type ".. table_to_string(t))
       end
-
-      local w = style.terrain.blocks_pixel_size
-      local h = style.terrain.blocks_pixel_size
-      local x = (c-1) * w
-      local y = (r-1) * h
-
-      local block_type = Blocks[block]
-
-      if block_type == nil then
-        return
-      end
-
-      local tname = block_type.texture
-      local texture = cache.image(tname)
-      local sx = w / texture:getWidth()
-      local sy = h / texture:getHeight()
-
-      love.graphics.setColor(1,1,1,1.0)
-      love.graphics.draw(texture,x,y,0,sx,sy)
-      -- love.graphics.setColor(1,1,1,0.5)
-      -- love.graphics.rectangle("fill", x,y,w,h)
-      love.graphics.setColor(255,255,255,1.0)
-    end)
+    end
   end
+
+
+  -- local rect = { 
+  --   rMin = 1, 
+  --   rMax = style.terrain.blocks_per_chunk,
+  --   cMin = 1, 
+  --   cMax = style.terrain.blocks_per_chunk
+  -- }
+
+  -- local function RenderChunk(chunk)
+  -- -- print("rendering chunk "..chunk.r..","..chunk.c)
+
+  --   local rect = { 
+  --     rMin = 1, 
+  --     rMax = style.terrain.blocks_per_chunk,
+  --     cMin = 1, 
+  --     cMax = style.terrain.blocks_per_chunk
+  --   }
+
+  --   ForEachRC(rect, function(r,c) 
+  --     -- print("👀"..#chunk.block.." "..r..","..c)
+  --     local block = chunk.block[r][c]
+
+  --     if block == 0 then
+  --       return
+  --     end
+
+  --     local w = style.terrain.blocks_pixel_size
+  --     local h = style.terrain.blocks_pixel_size
+  --     local x = (c-1) * w
+  --     local y = (r-1) * h
+
+  --     local block_type = Blocks[block]
+
+  --     if block_type == nil then
+  --       return
+  --     end
+
+  --     local tname = block_type.texture
+  --     local texture = cache.image(tname)
+  --     local sx = w / texture:getWidth()
+  --     local sy = h / texture:getHeight()
+
+  --     love.graphics.setColor(1,1,1,1.0)
+  --     love.graphics.draw(texture,x,y,0,sx,sy)
+  --     -- love.graphics.setColor(1,1,1,0.5)
+  --     -- love.graphics.rectangle("fill", x,y,w,h)
+  --     love.graphics.setColor(255,255,255,1.0)
+  --   end)
+  -- end
 
 
   return {
     state = {
       chunks = { },
-      -- ghost_chunks  = { },
-      chunk_buffers = { },
+      chunk_front_buffers = { },
+      chunk_back_buffers = { },
 
       render_chunk_borders = false,
       render_chunks = true,
@@ -104,14 +140,21 @@ function Terrain(generator)
           chunk.c - 2 > rect.cMax then
 
           print("release chunk "..chunk.r..' '..chunk.c)
-          local buffer = self.state.chunk_buffers[chunkrc]
+          local front_buffer = self.state.chunk_front_buffers[chunkrc]
 
-          if buffer ~= nil then
-            buffer:release()
+          if front_buffer ~= nil then
+            front_buffer:release()
+          end
+
+          local back_buffer = self.state.chunk_back_buffers[chunkrc]
+
+          if back_buffer ~= nil then
+            back_buffer:release()
           end
 
           self.state.chunks[chunkrc] = nil
-          self.state.chunk_buffers[chunkrc] = nil
+          self.state.chunk_front_buffers[chunkrc] = nil
+          self.state.chunk_back_buffers[chunkrc] = nil
         end
 
       end
@@ -161,7 +204,8 @@ function Terrain(generator)
 
         local chunk = self.state.chunks[chunkrc]
 
-        local framebuffer = self.state.chunk_buffers[chunkrc]
+        local framebuffer_front = self.state.chunk_front_buffers[chunkrc]
+        local framebuffer_back = self.state.chunk_back_buffers[chunkrc]
 
         if chunk == nil then return end
 
@@ -173,18 +217,33 @@ function Terrain(generator)
 
         local render_y = chunk_y-view.y+half_screen_height
 
-        if framebuffer == nil then 
-          framebuffer = love.graphics.newCanvas(chunk_native_pixel_width, chunk_native_pixel_height)
-          self.state.chunk_buffers[chunkrc] = framebuffer
+        if framebuffer_front == nil then 
+          framebuffer_front = love.graphics.newCanvas(chunk_native_pixel_width, chunk_native_pixel_height)
+          self.state.chunk_front_buffers[chunkrc] = framebuffer_front
 
-          love.graphics.setCanvas(framebuffer)
-          framebuffer:setFilter("linear", "nearest")
-          RenderChunk(chunk)
+          love.graphics.setCanvas(framebuffer_front)
+          framebuffer_front:setFilter("linear", "nearest")
+          RenderChunk(chunk.front)
+          love.graphics.setCanvas()
+        end
+
+        if framebuffer_back == nil then 
+          framebuffer_back = love.graphics.newCanvas(chunk_native_pixel_width, chunk_native_pixel_height)
+          self.state.chunk_back_buffers[chunkrc] = framebuffer_back
+
+          love.graphics.setCanvas(framebuffer_back)
+          framebuffer_back:setFilter("linear", "nearest")
+          RenderChunk(chunk.back)
           love.graphics.setCanvas()
         end
 
         if self.state.render_chunks then
-          love.graphics.draw(framebuffer, 
+          love.graphics.setColor(0.5,0.5,0.5,1.0)
+          love.graphics.draw(framebuffer_back, 
+            render_x, render_y, 0, scale, scale)
+          love.graphics.setColor(1.0,1.0,1.0,1.0)
+
+          love.graphics.draw(framebuffer_front, 
             render_x, render_y, 0, scale, scale)
         end
 
