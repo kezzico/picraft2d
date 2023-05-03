@@ -1,6 +1,6 @@
 style = {
   menu = {
-    background_color = {r=0,g=0,b=88,a=0.5},
+    background_color = {r=0,g=0,b=0.5,a=0.5},
 
     music = "music/DR0000_0401.mp3",
 
@@ -22,6 +22,14 @@ style = {
     }
   },
 
+  game = {
+    hub_text = {
+      text_color = {1,1,0,1},
+
+      fontname = { "fonts/joystix.ttf", 25 }
+    }
+  },
+
   terrain = {
     chunk = {
       border_color = {255,255,0,0.5},
@@ -34,11 +42,56 @@ style = {
       fontname = { "fonts/joystix.ttf", 64 },
     },
 
+    blocks = {
+      bricks_overworld = { 
+        texture = 'textures/bricks_overworld.png' 
+      },
+      bricks_underworld = { 
+        texture = 'textures/bricks_underworld.png' 
+      },
+      groundy_overworld = { 
+        texture = 'textures/groundy_overworld.png' 
+      },
+      groundy_underworld = { 
+        texture = 'textures/groundy_underworld.png' 
+      },
+      hardblock_overworld = {
+          texture = 'textures/hardblock_overworld.png'
+      },
+      hardblock_underworld = {
+          texture = 'textures/hardblock_underworld.png'
+      },      
+      dark = {
+          texture = 'textures/dark.png'
+      },      
+    },
+
     native_zoom_scale = 16,
 
-    blocks_pixel_size = 15,
+    blocks_pixel_size = 15*6,
 
-    blocks_per_chunk = 32,
+    blocks_per_chunk = 4,
 
+  }
+}
+
+biomes = {
+  overworld = {
+    bricks = style.terrain.blocks.bricks_overworld,
+    groundy = style.terrain.blocks.groundy_overworld,
+    hardblock = style.terrain.blocks.hardblock_overworld,
+    background = { 
+      style.terrain.blocks.bricks_overworld 
+    }
+  },
+
+  underworld = {
+    bricks = style.terrain.blocks.bricks_underworld,
+    groundy = style.terrain.blocks.groundy_underworld,
+    hardblock = style.terrain.blocks.hardblock_underworld,
+    background = { 
+      style.terrain.blocks.dark,
+      style.terrain.blocks.bricks_underworld
+    }
   }
 }
