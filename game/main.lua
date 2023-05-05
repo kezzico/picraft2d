@@ -11,6 +11,9 @@ require 'random'
 require 'generator'
 require 'terrain'
 require 'text'
+require 'simulation'
+require 'entity'
+require 'vector'
 
 game = nil
 menu = nil

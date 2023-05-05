@@ -11,7 +11,7 @@ function Terrain(generator)
       end
     end
   end
-
+  -- test me
   local function viewToRect(view)
       local chunk_native_pixel_width = style.terrain.blocks_pixel_size * style.terrain.blocks_per_chunk
 
@@ -23,9 +23,9 @@ function Terrain(generator)
 
       local chunk_height = chunk_native_pixel_height * scale
 
-      local half_screen_height = global_state.screen_height / 2
+      local half_screen_height = view.screen_height / 2
 
-      local half_screen_width = global_state.screen_width / 2
+      local half_screen_width = view.screen_width / 2
 
       local rect = {
         rMin = math.floor((view.y - half_screen_height) / chunk_height),
@@ -36,6 +36,7 @@ function Terrain(generator)
 
       return rect
   end
+
   local function RenderChunk(blocks)
   -- print("rendering chunk "..chunk.r..","..chunk.c)
 
@@ -65,57 +66,6 @@ function Terrain(generator)
     end
   end
 
-
-  -- local rect = { 
-  --   rMin = 1, 
-  --   rMax = style.terrain.blocks_per_chunk,
-  --   cMin = 1, 
-  --   cMax = style.terrain.blocks_per_chunk
-  -- }
-
-  -- local function RenderChunk(chunk)
-  -- -- print("rendering chunk "..chunk.r..","..chunk.c)
-
-  --   local rect = { 
-  --     rMin = 1, 
-  --     rMax = style.terrain.blocks_per_chunk,
-  --     cMin = 1, 
-  --     cMax = style.terrain.blocks_per_chunk
-  --   }
-
-  --   ForEachRC(rect, function(r,c) 
-  --     -- print("👀"..#chunk.block.." "..r..","..c)
-  --     local block = chunk.block[r][c]
-
-  --     if block == 0 then
-  --       return
-  --     end
-
-  --     local w = style.terrain.blocks_pixel_size
-  --     local h = style.terrain.blocks_pixel_size
-  --     local x = (c-1) * w
-  --     local y = (r-1) * h
-
-  --     local block_type = Blocks[block]
-
-  --     if block_type == nil then
-  --       return
-  --     end
-
-  --     local tname = block_type.texture
-  --     local texture = cache.image(tname)
-  --     local sx = w / texture:getWidth()
-  --     local sy = h / texture:getHeight()
-
-  --     love.graphics.setColor(1,1,1,1.0)
-  --     love.graphics.draw(texture,x,y,0,sx,sy)
-  --     -- love.graphics.setColor(1,1,1,0.5)
-  --     -- love.graphics.rectangle("fill", x,y,w,h)
-  --     love.graphics.setColor(255,255,255,1.0)
-  --   end)
-  -- end
-
-
   return {
     state = {
       chunks = { },
@@ -124,7 +74,6 @@ function Terrain(generator)
 
       render_chunk_borders = false,
       render_chunks = true,
-      rMin = 0, rMax = 0, cMin = 0, cMax = 0
     },
 
     clean = function(self, view)
@@ -188,9 +137,9 @@ function Terrain(generator)
 
       local chunk_height = chunk_native_pixel_height * scale
 
-      local half_screen_height = global_state.screen_height / 2
+      local half_screen_height = view.screen_height / 2
 
-      local half_screen_width = global_state.screen_width / 2
+      local half_screen_width = view.screen_width / 2
 
       local rect = {
         rMin = math.floor((view.y - half_screen_height) / chunk_height),
