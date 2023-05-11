@@ -37,11 +37,12 @@ function Simulation(seed)
 
 				local buffer = entity_buffers[eid]
 
-				local chunkrc = positionToChunkRC(entity.state.position)
+				-- local chunkrc = positionToChunkRC(entity.state.position)
 
-				local chunk = chunks[chunkrc]
+				-- local chunk = chunks[chunkrc]
 
-				if chunk == nil and buffer ~= nil then
+				-- if chunk == nil and buffer ~= nil then
+				if buffer ~= nil then
 					buffer:release()
 
 					entity_buffers[eid] = nil
@@ -51,6 +52,10 @@ function Simulation(seed)
 
 		update = function(self, dt, chunks)
 			local entities = self.state.entities
+
+			local gravity = Vector.new(0,999.0)
+
+			local inertia = -0.0165 * 64
 
 			forEachEntity(self.state.entities, function(entity)
 				local chunkrc = positionToChunkRC(entity.state.position)
@@ -62,7 +67,24 @@ function Simulation(seed)
 					return
 				end
 
+				chunk.highlight = true
+				local v0 = entity.state.velocity
+				local v1 = v0 + (v0 * inertia * dt) + (gravity * dt)
+
+				local p0 = entity.state.position
+				local p1 = entity.state.position + v0 * dt
+
+				-- print(table_to_string(v1))
+				-- v1 = v1 + g
+				-- get chunks p0p1 passes thru
+				-- if a p0p1 intersects a block
+
+				entity.state.position = p1
+				entity.state.velocity = v1
+
 				entity:update(dt)
+
+				-- TODO: inertia & gravity
 			end)
 		end,
 
