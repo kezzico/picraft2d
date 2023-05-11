@@ -49,6 +49,28 @@ function love.update(dt)
   global_state.screen_height = love.graphics.getHeight()
   global_state.screen_width = love.graphics.getWidth()
 
+  controllers.player1.state = ControllerState()
+
+  if love.keyboard.isDown("up") then 
+    controllers.player1.state.up = 1.0
+  end
+
+  if love.keyboard.isDown("down") then 
+    controllers.player1.state.down = 1.0
+  end
+
+  if love.keyboard.isDown("left") then 
+    controllers.player1.state.left = 1.0
+  end
+
+  if love.keyboard.isDown("right") then 
+    controllers.player1.state.right = 1.0
+  end
+
+  if love.keyboard.isDown("lshift") then
+    controllers.player1.state.run = 1.0
+  end
+
   menu:update(dt)
   game:update(dt)
 end
@@ -93,10 +115,8 @@ function love.keypressed(key, u)
     controller.delegate.press_function_2()
   end
   if tonumber(key) ~= nil then
-    print(key)
     controller.delegate.press_number(tonumber(key))
   end
-
 end
 
 function love.joystickadded(joystick)

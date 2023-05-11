@@ -1,9 +1,24 @@
 function Controller()
 	return {
 		clear = function(self) end,
-		delegate = ControllerDelegate()
+		delegate = ControllerDelegate(),
+		state = ControllerState()
 	}
+end
 
+function ControllerState()
+	return {
+		up 		= 0.0,
+		down 	= 0.0,
+		left 	= 0.0,
+		right 	= 0.0,
+
+		jump	= 0.0,
+		run 	= 0.0,
+
+		mine 	= 0.0,
+		use 	= 0.0
+	}
 end
 
 function ControllerDelegate()
@@ -16,7 +31,7 @@ function ControllerDelegate()
 		press_right 	 = function() end,
 		press_function_1 = function() end,
 		press_function_2 = function() end,
-		press_number     = function() end,
+		press_number     = function() end
 	}
 end
 
