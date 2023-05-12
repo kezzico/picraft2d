@@ -1,7 +1,7 @@
 function Controller()
 	return {
-		clear = function(self) end,
 		delegate = ControllerDelegate(),
+		joystick = nil,
 		state = ControllerState()
 	}
 end

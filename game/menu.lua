@@ -71,7 +71,7 @@ function Menu:activate()
       game:activate()
     end
   end
-  controllers.player1.delegate = delegate
+  controllers[1].delegate = delegate
 end
 
 function Menu:suspend()

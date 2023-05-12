@@ -25,7 +25,7 @@ global_state = {
 }
 
 controllers = {
-  player1 = Controller()
+  Controller(), Controller()
 }
 
 cache = Cache()
@@ -49,26 +49,26 @@ function love.update(dt)
   global_state.screen_height = love.graphics.getHeight()
   global_state.screen_width = love.graphics.getWidth()
 
-  controllers.player1.state = ControllerState()
+  for i=1,#controllers do
+    local state = ControllerState()
+    local joystick = love.joystick.getJoysticks()[i]
+    
+    if joystick ~= nil then
+      if joystick:isGamepadDown("dpup") then state.up = 1.0 end
+      if joystick:isGamepadDown("dpdown") then state.down = 1.0 end
+      if joystick:isGamepadDown("dpleft") then state.left = 1.0 end
+      if joystick:isGamepadDown("dpright") then state.right = 1.0 end
+      if joystick:isGamepadDown("a") then state.run = 1.0 end
+    end
+    if i == 1 then
+      if love.keyboard.isDown("up") then state.up = 1.0 end
+      if love.keyboard.isDown("down") then state.down = 1.0 end
+      if love.keyboard.isDown("left") then state.left = 1.0 end
+      if love.keyboard.isDown("right") then state.right = 1.0 end
+      if love.keyboard.isDown("lshift") then state.run = 1.0 end
+    end
 
-  if love.keyboard.isDown("up") then 
-    controllers.player1.state.up = 1.0
-  end
-
-  if love.keyboard.isDown("down") then 
-    controllers.player1.state.down = 1.0
-  end
-
-  if love.keyboard.isDown("left") then 
-    controllers.player1.state.left = 1.0
-  end
-
-  if love.keyboard.isDown("right") then 
-    controllers.player1.state.right = 1.0
-  end
-
-  if love.keyboard.isDown("lshift") then
-    controllers.player1.state.run = 1.0
+    controllers[i].state = state
   end
 
   menu:update(dt)
@@ -87,27 +87,24 @@ end
 
 
 function love.keypressed(key, u)
-  local controller = controllers.player1
+  local controller = controllers[1]
+
   if key == "up" then
     controller.delegate:press_up()
   elseif key == "down" then
     controller.delegate:press_down()
   end
-
   if key == "left" then
     controller.delegate.press_left()
   elseif key == "right" then
     controller.delegate.press_right()
   end
-
   if key == "return" then
     controller.delegate.press_x()
   end
-
   if key == "escape" then
     controller.delegate.press_start()
   end
-
   if key == "c" then
     controller.delegate.press_function_1()
   end
@@ -119,41 +116,20 @@ function love.keypressed(key, u)
   end
 end
 
-function love.joystickadded(joystick)
-  local jid = joystick:getID()
-  print("jid:"..jid)
-end
-
-function love.joystickremoved(joystick)
-  print(table_to_string(love.joystick.getJoysticks()))
-
-end
-
 function love.gamepadpressed(joystick, button)
-  local controller = controllers.player1
+  for i=1, #controllers do
+    local controller = controllers[i]
 
-  if button == "dpup" then
-    controller.delegate.press_up()
-  elseif button == "dpdown" then
-    controller.delegate.press_down()
+    if button == "dpleft" then
+      controller.delegate.press_left()
+    elseif button == "dpright" then
+      controller.delegate.press_right()
+    end
+    if button == "a" then
+      controller.delegate.press_x()
+    end
+    if button == "start" then
+      controller.delegate.press_start()
+    end
   end
-
-  if button == "dpleft" then
-    controller.delegate.press_left()
-  elseif button == "dpright" then
-    controller.delegate.press_right()
-  end
-
-  if button == "a" then
-    controller.delegate.press_x()
-  end
-
-  if button == "start" then
-    controller.delegate.press_start()
-  end
-
-end
-
-function love.gamepadreleased(joystick, button)
-
 end

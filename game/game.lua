@@ -52,7 +52,7 @@ function Game()
       view.screen_height = global_state.screen_height
 
       local player = self.state.player
-      local p1cs = controllers.player1.state
+      local p1cs = controllers[1].state
 
       if player ~= nil then
         if self.state.active then
@@ -133,7 +133,7 @@ function Game()
         self.state.view.zoom = style.terrain.native_zoom_scale/10 * (10-n)
       end
 
-      controllers.player1.delegate = delegate
+      controllers[1].delegate = delegate
 
     end,
 
