@@ -194,6 +194,7 @@ function Terrain(generator)
 
           love.graphics.draw(framebuffer_front, 
             render_x, render_y, 0, scale, scale)
+          love.graphics.setColor(1.0,1.0,1.0,1.0)
         end
 
         -- render chunk debug info (borders, chunkrc)
