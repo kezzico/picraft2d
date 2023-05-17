@@ -14,7 +14,7 @@ function Game()
       active = false,
 
       view = { 
-        zoom = style.terrain.native_zoom_scale, 
+        zoom = style.terrain.native_zoom_scale/10 * (10-7), 
         x = 0, y = 0,
         screen_width = 1, screen_height = 1
       }
@@ -25,7 +25,7 @@ function Game()
 
       seed_text = Text("seed: "..seed, style.game.hub_text)
 
-      generator = Generator(seed, generator_config or "generators/rolling-hills.lua")
+      generator = Generator(seed, generator_config or "generators/checkers.lua")
 
       generator:start()
 
@@ -33,6 +33,7 @@ function Game()
 
       simulation = Simulation()
 
+      self.state.player.state.position = Vector.new(9900, 1200)
       table.insert(simulation.state.entities, self.state.player)
     end,
 
