@@ -72,7 +72,23 @@ style = {
 
     blocks_per_chunk = 4,
 
+  },
+
+  entities = {
+    black_coffee = {
+      imagepath = "sprites/mocha.png",
+
+      frame_width = 15, frame_height = 15,
+
+      animations = {
+        stand = { 1 },
+        jump = { 2 },
+        stop = { 3 },
+        run = { 4,5,6 }
+      }
+    }
   }
+
 }
 
 biomes = {
