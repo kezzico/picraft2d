@@ -34,7 +34,7 @@ cache = Cache()
 function love.load()
   game = Game()
 
-  game:load(1234, "generators/rolling-hills.lua")
+  game:load(1234, "generators/checkers.lua")
 
   menu = Menu:new()
   menu:load()
