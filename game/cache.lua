@@ -10,7 +10,7 @@ function Cache()
 			local font = font_cache[key]
 
 			if font == nil then
-				print("load font")
+				print("load font "..key)
 				font = love.graphics.newFont(fontname[1], fontname[2])
 
 				font_cache[key] = font
@@ -61,7 +61,7 @@ function Cache()
 
 				local offset_y = math.floor((frame-1) / num_hcells) * ent_style.frame_height
 
-				print(frame..' '..offset_x..' '..offset_y)
+				-- print('quad frame#'..frame..' x,y:'..offset_x..','..offset_y)
 				local quad = love.graphics.newQuad(
 					offset_x, offset_y, 
 					ent_style.frame_width, ent_style.frame_height,
