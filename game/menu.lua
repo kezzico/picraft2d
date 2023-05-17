@@ -66,10 +66,8 @@ function Menu:activate()
   end
 
   delegate.press_start = function()
-    if game.state.active then
-      menu:suspend()
-      game:activate()
-    end
+    menu:suspend()
+    game:activate()
   end
   controllers[1].delegate = delegate
 end
