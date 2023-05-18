@@ -1,5 +1,3 @@
-require 'TSerial'
-require 'blocks'
 
 function Terrain(generator)
   local chunkfont = cache.font(style.terrain.chunk.fontname)
@@ -11,6 +9,7 @@ function Terrain(generator)
       end
     end
   end
+
   -- test me
   local function viewToRect(view)
       local chunk_native_pixel_width = style.terrain.blocks_pixel_size * style.terrain.blocks_per_chunk
@@ -39,17 +38,20 @@ function Terrain(generator)
 
   local function RenderChunk(blocks)
   -- print("rendering chunk "..chunk.r..","..chunk.c)
+    local chunk_width = style.terrain.blocks_per_chunk
+    local chunk_height = style.terrain.blocks_per_chunk
 
     local w = style.terrain.blocks_pixel_size
 
     local h = style.terrain.blocks_pixel_size
 
-    for xy in pairs(blocks) do
-      local block = blocks[xy]
+    forEachPair(blocks, function(block)
+      if block.i < 0 or block.i >= chunk_width then return end
+      if block.j < 0 or block.j >= chunk_height then return end
 
-      local x = block.x
+      local x = block.i * style.terrain.blocks_pixel_size 
 
-      local y = block.y
+      local y = block.j * style.terrain.blocks_pixel_size
 
       local t = block.type
 
@@ -63,7 +65,8 @@ function Terrain(generator)
       else
         print("unknown block type ".. table_to_string(t))
       end
-    end
+    end)
+
   end
 
   return {
@@ -72,6 +75,7 @@ function Terrain(generator)
       chunk_front_buffers = { },
       chunk_back_buffers = { },
 
+      render_collision_barriers = true,
       render_chunk_borders = false,
       render_chunks = true,
     },
@@ -88,7 +92,7 @@ function Terrain(generator)
           chunk.c + 2 < rect.cMin or 
           chunk.c - 2 > rect.cMax then
 
-          print("release chunk "..chunk.r..' '..chunk.c)
+          -- print("release chunk "..chunk.r..' '..chunk.c)
           local front_buffer = self.state.chunk_front_buffers[chunkrc]
 
           if front_buffer ~= nil then
@@ -220,9 +224,25 @@ function Terrain(generator)
           love.graphics.setColor(255,255,255,1)
         end
 
+        if self.state.render_collision_barriers then
+          local barriers = collision_barriers(chunk.front)
+
+          love.graphics.setColor(0,1,0,1)
+
+          for i=1,#barriers do
+            -- print(table_to_string(barriers[i]))
+            love.graphics.line(
+              barriers[i][1][1] * scale + render_x,
+              barriers[i][1][2] * scale + render_y,
+              barriers[i][2][1] * scale + render_x,
+              barriers[i][2][2] * scale + render_y)
+          end
+
+          love.graphics.setColor(1,1,1,1)
+      end
+
       end)
     end
   }
-
 end
 

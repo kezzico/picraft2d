@@ -1,12 +1,6 @@
 function Simulation(seed)
 	local entity_buffers = { }
 
-	local function forEach(table_1dex, callback)
-		for i=1, #table_1dex do
-			callback(table_1dex[i])
-		end
-	end
-
 	local function positionToChunkRC(position)	
 		local x = position.x
 		local y = position.y

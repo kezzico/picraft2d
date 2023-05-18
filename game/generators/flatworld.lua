@@ -1,27 +1,34 @@
+require 'table_to_string'
 require 'generator'
+require 'perlin'
+require 'style'
+require 'random'
+require 'wave'
 require 'chunk'
-local generator = Generator()
 
-generator:thread_loop(function(params)
-    chunk = Chunk:new()
+Generator():thread_loop(function(params)
+  local seed = params.seed
+  local chunk = Chunk(params)
+  local biome = biomes.overworld
 
-    chunk.r = params.r
-    chunk.c = params.c
-    -- for r = 1, 32 do
-    --   chunk.block[r] = {}
-    --   chunk.perlin[r] = {}
-    --   for c = 1, 32 do
-    --     chunk.block[r][c] = STONE
-    --     chunk.perlin[r][c] = 0
-    --   end
-	  -- chunk.perlin = {}
-	  -- chunk.generated = true
-	  -- chunk.changed = true
-	  -- chunk.r = params.r
-	  -- chunk.c = params.c
-
+  chunk.front = generate_blocks(params, function(x,y)
+    if y > 15 and y < 18 then
+      return biome.groundy
+    end
+    -- if params.r == 5 and j > 2 then
+    --   print(x..' '..y)
+      -- return Block(i,j,biome.groundy)
+    -- elseif params.r > 5 then
+    --   return Block(i,j,biome.groundy)
     -- end
 
+    return nil
+  end)
 
-    return chunk
+  chunk.back = generate_blocks(params, function(i,j,x,y)
+    return nil
+  end)
+
+  return chunk
 end)
+

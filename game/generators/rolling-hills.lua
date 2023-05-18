@@ -5,63 +5,25 @@ require 'style'
 require 'random'
 require 'wave'
 
-local chunk_width = style.terrain.blocks_per_chunk
-local chunk_height = style.terrain.blocks_per_chunk
-local block_width = style.terrain.blocks_pixel_size
-local block_height = style.terrain.blocks_pixel_size
-
-function Chunk(p)
-  return {
-    r = p.r or 0,
-
-    c = p.c or 0,
-
-    front = { },
-
-    back = { }
-  }
-end
-
-function Block(i, j, type) 
-  return { 
-      type = type,
-      x = i * block_width,
-      y = j * block_height
-    }
-end
-
-local function forEachBlock(fn)
-  for i=1, chunk_height do
-    for j=1, chunk_width do
-        fn(i-1, j-1)
-    end
-  end
-end
-
-local blocks = {
-
-}
+require 'table_to_string'
+require 'generator'
+require 'perlin'
+require 'style'
+require 'random'
+require 'wave'
+require 'chunk'
 
 Generator():thread_loop(function(params)
   local seed = params.seed
   local chunk = Chunk(params)
 
-  forEachBlock(function(i,j) 
-    local blockid = i..','..j
-    local y = params.r*chunk_height+i
-    local x = params.c*chunk_width+j
-
-    local back_block = nil
-
-    local front_block = nil
-
+  chunk.front = generate_blocks(params, function(x,y)
     local biome = biomes.overworld
 
-    -- 40 to 80
+    -- sky biome
     if y < wave(seed, x, 22, 66) - 44 then
-      return
+      return nil
     end
-
 
     -- underworld biome
     if y > wave(seed, x, 4, 88) then
@@ -69,60 +31,40 @@ Generator():thread_loop(function(params)
 
       if perlin(seed, x, y, 88) < 0.0 then
         if perlin(seed, x, y, 3) > -0.2 then
-          front_block = Block(i,j,biome.hardblock)
+          return biome.hardblock
         else
-          front_block = Block(i,j,biome.groundy)
+          return biome.groundy
         end
-      else
-        if perlin(seed, x, y, 2) < 0.0 then
-          back_block = Block(i,j,biome.background[1])
-        else
-          back_block = Block(i,j,biome.bricks)
-        end
-
       end
+    -- overworld biome
     elseif y > wave(seed,x,44,55) - 66 then
       biome = biomes.overworld
-      front_block = Block(i,j,biome.groundy)
-
-
+      return i,j,biome.groundy
     end
 
-    -- local diversity_front = perlin(seed, x, y, 3)
+    return nil
+  end)
 
-    -- local diversity_back = perlin(seed, x, y, 2)
+  chunk.back = generate_blocks(params, function(x,y)
+    local biome = biomes.overworld
 
-    chunk.front[blockid] = front_block
+    -- underworld biome
+    if y > wave(seed, x, 4, 88) then
+      biome = biomes.underworld
 
-    chunk.back[blockid] = back_block
+      if perlin(seed, x, y, 88) < 0.0 then
+      else
+        if perlin(seed, x, y, 2) < 0.0 then
+          return i,j,biome.background[1]
+        else
+          return i,j,biome.bricks
+        end
+      end
+    end
+
+    return nil
   end)
 
   return chunk
 end)
 
-  -- local block_width = style.terrain.blocks_per_chunk
-  -- local block_height = style.terrain.blocks_per_chunk
-
-  -- chunk = { r = params.r, c = params.c, blocks = { } }
-
-  -- for i=1, block_height do
-  --   for j=1, block_width do
-  --     local y = params.r*block_height+i
-  --     local x = params.c*block_width+j
-
-  --     if y > wave(params.seed, x, 4, 88) then
-  --       -- local p = perlin(params.seed, x, y)
-  --       -- if p < -0.45 then
-  --       --   -- ore
-  --       --   chunk.block[i][j] = 3
-  --       -- elseif p < 0.0 then
-  --       --   -- cave
-  --       --   chunk.block[i][j] = 2
-  --       -- else
-  --       --   chunk.block[i][j] = 1
-  --       -- end
-  --     end
-  --   end
-  -- end
-
-  -- return chunk

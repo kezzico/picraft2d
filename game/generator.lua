@@ -1,29 +1,25 @@
 function Generator(seed, threadcode)
   return {
-    thread = nil,
-
     chunk_queue = { },
 
-    chunk_channel = love.thread.getChannel('generator_chunk'),
+    chunk_channel = love.thread.getChannel('generator_chunk_'),
 
-    command_channel = love.thread.getChannel('generator_command'),
+    command_channel = love.thread.getChannel('generator_command_'),
 
-    start = function(self) 
-      self.command_channel:push("quit")
+    start = function(self)
+      local thread = love.thread.newThread(threadcode)
 
-      self.chunk_channel:clear()
-
-      self.command_channel:clear()
-      
-      if self.thread == nil then
-        self.thread = love.thread.newThread(threadcode)
-        
-        self.thread:start(chunk_channel, command_channel)
-      end
+      thread:start(chunk_channel, command_channel)
     end,
 
     stop = function(self)
-      self.command_channel:push("quit")      
+      self.chunk_channel:clear()
+
+      self.command_channel:clear()
+
+      self.command_channel:push("quit")
+
+      self.chunk_queue = { }
     end,
 
     push = function(self, r, c)
@@ -39,7 +35,6 @@ function Generator(seed, threadcode)
 
       local command = { seed = seed, r = r, c = c }
 
-      -- self.command_channel:push(TSerial.pack(command))
       self.command_channel:push(command)
 
     end,
@@ -62,7 +57,7 @@ function Generator(seed, threadcode)
 
       local msg = self.command_channel:demand()
 
-      while msg ~= "quit" do
+      while msg ~= "quit" do        
         local params = msg
 
         local chunk = chunk_generator(params)
