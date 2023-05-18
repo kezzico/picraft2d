@@ -21,11 +21,15 @@ function Game()
     },
 
     load = function(self, game_seed, generator_config)
-      seed = math.random(65536) or game_seed
+      seed = game_seed
 
       seed_text = Text("seed: "..seed, style.game.hub_text)
 
-      generator = Generator(seed, generator_config or "generators/checkers.lua")
+      if generator ~= nil then
+        generator:stop()
+      end
+
+      generator = Generator(seed, generator_config)
 
       generator:start()
 
@@ -35,10 +39,6 @@ function Game()
 
       self.state.player.state.position = Vector.new(9900, 1200)
       table.insert(simulation.state.entities, self.state.player)
-    end,
-
-    suspend = function(self)
-
     end,
 
     draw = function(self)
@@ -67,6 +67,13 @@ function Game()
           walk_speed = 15.0
         end
 
+        if p1cs.jump > 0.0 then
+          if player.state.velocity.y == 0 then
+            player.state.velocity.y = -1000.0
+          elseif player.state.velocity.y < 0 then
+            player.state.velocity.y = player.state.velocity.y - 10.0
+          end
+        end
         if p1cs.left > 0.0 then
           player.state.velocity.x = player.state.velocity.x - p1cs.left * walk_speed
         end
@@ -84,6 +91,8 @@ function Game()
     end,
 
     activate = function(self)
+      generator:start()
+
       self.state.active = true
 
       local delegate = ControllerDelegate()
@@ -140,6 +149,8 @@ function Game()
 
     suspend = function(self)
       self.state.active = false
+
+      generator:stop()
     end,
   }
 

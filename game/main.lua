@@ -14,6 +14,8 @@ require 'text'
 require 'simulation'
 require 'entity'
 require 'vector'
+require 'chunk'
+require 'foreach'
 
 game = nil
 menu = nil
@@ -34,7 +36,7 @@ cache = Cache()
 function love.load()
   game = Game()
 
-  game:load(1234, "generators/checkers.lua")
+  game:load(1234, "generators/buildings.lua")
 
   menu = Menu:new()
   menu:load()
@@ -59,6 +61,7 @@ function love.update(dt)
       if joystick:isGamepadDown("dpleft") then state.left = 1.0 end
       if joystick:isGamepadDown("dpright") then state.right = 1.0 end
       if joystick:isGamepadDown("a") then state.run = 1.0 end
+      if joystick:isGamepadDown("b") then state.jump = 1.0 end
     end
     if i == 1 then
       if love.keyboard.isDown("up") then state.up = 1.0 end
@@ -66,6 +69,7 @@ function love.update(dt)
       if love.keyboard.isDown("left") then state.left = 1.0 end
       if love.keyboard.isDown("right") then state.right = 1.0 end
       if love.keyboard.isDown("lshift") then state.run = 1.0 end
+      if love.keyboard.isDown("space") then state.jump = 1.0 end
     end
 
     controllers[i].state = state
