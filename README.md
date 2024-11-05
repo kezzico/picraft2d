@@ -7,27 +7,29 @@ See [http://www.love2d.org]() for more info.
 
 Picraft was built using Lovecraft as a starting point. However, the code has been completely rewritten. A few stray files remain, but most can be safely removed from the project.
 
+[![videogame](https://github.com/user-attachments/assets/349f2b9a-b5c6-4df0-b3d4-8fc23f31d562)](https://drive.google.com/file/d/1uGrI6En_ArRCeaDEWmfWAS1FN2eGXPfZ/view?usp=share_link)
+
 The purpose of this software is demonstrate how different algorithms can be used to produce different results. See lua code files under [game/generators](game/generators) for examples.
 
 p_random and perlin noise code has been added to the code. checkout [game/random.lua](game/random.lua) and [game/perlin.lua](game/perlin.lua) to checkout to the algorithms.
 
 Each level in the game uses either a different generator or a different seed.
 
-# PACKAGE
+## PACKAGE
 
 `zip -r game picraft.love`
 
 
-# TEST
+## TEST
 
 `love11.4 tests`
 
-# RUN
+## RUN
 
 `love11.4 game`
 
 
-## Credits, attributions and other rubbish ##
+## Credits, attributions and other rubbish
 
 Made with the LÖVE framework
 [http://www.love2d.org]()
